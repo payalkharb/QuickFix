@@ -2,42 +2,54 @@
 // import axios from "axios";
 // import { toast } from "react-hot-toast";
 // import useAuthStore from "../store/authStore";
+// import useBookingStore from "../store/bookingStore";
+// import { useNavigate } from "react-router-dom";
+// import {
+//   Calendar,
+//   User,
+//   Phone,
+//   Star,
+//   XCircle,
+//   RefreshCcw,
+//   MessageSquare,
+// } from "lucide-react";
 
 // const BASE_URL = "http://localhost:5000/api";
 
 // export default function MyBookings() {
 //   const { token } = useAuthStore();
-//   const [bookings, setBookings] = useState([]);
-//   const [upcoming, setUpcoming] = useState([]);
+//   const {
+//     bookings,
+//     upcoming,
+//     setBookings,
+//     setUpcoming,
+//     setSelectedBooking,
+//     selectedBooking,
+//   } = useBookingStore();
 
-//   // Modal state
-//   const [activeModal, setActiveModal] = useState(null); // "cancel" | "reschedule" | "review"
-//   const [selectedBooking, setSelectedBooking] = useState(null);
+//   const [activeModal, setActiveModal] = useState(null);
 //   const [newDate, setNewDate] = useState("");
 //   const [reviewText, setReviewText] = useState("");
 //   const [rating, setRating] = useState(5);
 
+//   const authHeader = { Authorization: `Bearer ${token}` };
+//   const navigate = useNavigate();
+
 //   useEffect(() => {
 //     fetchBookings();
 //     fetchUpcoming();
-//   }, []);
-
-//   const authHeader = { Authorization: `Bearer ${token}` }; // change if backend doesn’t use Bearer
+//   }, [token]);
 
 //   const fetchBookings = async () => {
-//     if (!token) return; // avoid 401 spam if no token
+//     if (!token) return;
 //     try {
 //       const res = await axios.get(`${BASE_URL}/bookings`, {
 //         headers: authHeader,
 //       });
-//       setBookings(res.data);
-//     } catch (err) {
-//       if (err.response?.status === 401) {
-//         toast.error("Session expired, please log in again");
-//       } else {
-//         toast.error("Failed to fetch bookings");
-//       }
-//       console.error(err);
+//       const pastBookings = res.data.filter((b) => b.status === "completed");
+//       setBookings(pastBookings);
+//     } catch {
+//       toast.error("Failed to fetch bookings");
 //     }
 //   };
 
@@ -65,8 +77,7 @@
 //       setActiveModal(null);
 //       fetchBookings();
 //       fetchUpcoming();
-//     } catch (err) {
-//       console.error(err);
+//     } catch {
 //       toast.error("Cancel failed");
 //     }
 //   };
@@ -84,8 +95,7 @@
 //       setNewDate("");
 //       fetchBookings();
 //       fetchUpcoming();
-//     } catch (err) {
-//       console.error(err);
+//     } catch {
 //       toast.error("Reschedule failed");
 //     }
 //   };
@@ -95,99 +105,104 @@
 //     try {
 //       await axios.put(
 //         `${BASE_URL}/bookings/review/${selectedBooking._id}`,
-//         { rating, review: reviewText }, // check your backend field names!
+//         { rating, review: reviewText },
 //         { headers: authHeader }
 //       );
 //       toast.success("Review submitted");
 //       setActiveModal(null);
 //       setReviewText("");
 //       setRating(5);
-//     } catch (err) {
-//       if (err.response?.status === 400) {
-//         toast.error("Invalid review format (check backend fields)");
-//       } else {
-//         toast.error("Review failed");
-//       }
-//       console.error(err);
+//       fetchBookings();
+//     } catch {
+//       toast.error("Review failed");
 //     }
 //   };
 
 //   return (
-//     <div className="p-6">
-//       <h1 className="text-2xl font-bold mb-4">My Bookings</h1>
-
-//       {/* Upcoming Bookings */}
-//       <h2 className="text-xl mb-2">Upcoming</h2>
-//       <div className="grid gap-4 md:grid-cols-2">
-//         {upcoming.map((b) => (
-//           <div key={b._id} className="card bg-base-200 p-4 shadow">
-//             <h3 className="font-semibold">{b.serviceId?.title}</h3>
-//             <p>
-//               Technician: {b.technicianId?.name} ({b.technicianId?.phone})
-//             </p>
-//             <p>Date: {new Date(b.bookingDate).toLocaleDateString()}</p>
-//             <p>Status: {b.status}</p>
-
-//             <div className="mt-2 flex gap-2">
-//               <button
-//                 className="btn btn-sm btn-error"
-//                 onClick={() => {
-//                   setSelectedBooking(b);
-//                   setActiveModal("cancel");
-//                 }}
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 className="btn btn-sm btn-warning"
-//                 onClick={() => {
-//                   setSelectedBooking(b);
-//                   setActiveModal("reschedule");
-//                 }}
-//               >
-//                 Reschedule
-//               </button>
-//               <button
-//                 className="btn btn-sm btn-success"
-//                 onClick={() => {
-//                   setSelectedBooking(b);
-//                   setActiveModal("review");
-//                 }}
-//               >
-//                 Review
-//               </button>
-//             </div>
-//           </div>
-//         ))}
+//     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 p-6">
+//       {/* Header */}
+//       <div className="bg-primary text-white rounded-xl shadow-md p-6 mb-8 text-center">
+//         <h1 className="text-3xl font-extrabold flex items-center justify-center gap-2">
+//           <Calendar size={26} /> My Bookings
+//         </h1>
 //       </div>
 
-//       {/* All Bookings */}
-//       <h2 className="text-xl mt-6 mb-2">All Bookings</h2>
-//       <div className="grid gap-4 md:grid-cols-2">
-//         {bookings.map((b) => (
-//           <div key={b._id} className="card shadow p-4">
-//             <h3 className="text-lg font-bold">{b.service?.title}</h3>
-//             <p>Status: {b.status}</p>
+//       {/* Upcoming */}
+//       <h2 className="text-xl font-semibold mb-4 text-primary">Upcoming</h2>
+//       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+//         {upcoming.map((b) => (
+//           <div
+//             key={b._id}
+//             className="bg-white rounded-xl shadow-md p-4 border border-gray-200 hover:shadow-lg transition cursor-pointer"
+//             onClick={() => navigate(`/book/${b.serviceId?._id}`)}
+//           >
+//             <h3 className="font-bold text-lg text-primary flex items-center justify-between">
+//               {b.serviceId?.title}
+//               <span className="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-600">
+//                 {b.serviceId?.category}
+//               </span>
+//             </h3>
 
-//             <div className="flex gap-2 mt-2">
-//               <button
-//                 onClick={() => cancelBooking(b._id)}
-//                 className="btn btn-error btn-sm"
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 onClick={() => rescheduleBooking(b._id)}
-//                 className="btn btn-warning btn-sm"
-//               >
-//                 Reschedule
-//               </button>
+//             <p className="flex items-center gap-2 mt-2 text-gray-700">
+//               <User size={16} /> {b.technicianId?.name}
+//             </p>
+//             <p className="flex items-center gap-2 text-gray-600 text-sm">
+//               <Phone size={14} className="text-green-500" />{" "}
+//               {b.technicianId?.phone}
+//             </p>
+//             <p className="flex items-center gap-2 text-gray-500 text-sm mt-1">
+//               <Calendar size={16} className="text-pink-500" />{" "}
+//               {new Date(b.bookingDate).toLocaleDateString()}
+//             </p>
+
+//             <span
+//               className={`inline-block mt-3 px-2 py-1 text-xs rounded-full ${
+//                 b.status === "pending"
+//                   ? "bg-yellow-100 text-yellow-700"
+//                   : b.status === "completed"
+//                   ? "bg-green-100 text-green-700"
+//                   : "bg-red-100 text-red-700"
+//               }`}
+//             >
+//               {b.status}
+//             </span>
+
+//             {/* Actions */}
+//             <div className="mt-4 flex gap-2">
+//               {b.status === "pending" && (
+//                 <>
+//                   <button
+//                     className="flex items-center gap-1 bg-red-100 text-red-600 px-3 py-1 rounded-md text-sm hover:bg-red-200"
+//                     onClick={(e) => {
+//                       e.stopPropagation();
+//                       setSelectedBooking(b);
+//                       setActiveModal("cancel");
+//                     }}
+//                   >
+//                     <XCircle size={14} /> Cancel
+//                   </button>
+//                   <button
+//                     className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-md text-sm hover:bg-yellow-200"
+//                     onClick={(e) => {
+//                       e.stopPropagation();
+//                       setSelectedBooking(b);
+//                       setActiveModal("reschedule");
+//                     }}
+//                   >
+//                     <RefreshCcw size={14} /> Reschedule
+//                   </button>
+//                 </>
+//               )}
 //               {b.status === "completed" && (
 //                 <button
-//                   onClick={() => reviewBooking(b._id)}
-//                   className="btn btn-success btn-sm"
+//                   className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-md text-sm hover:bg-green-200"
+//                   onClick={(e) => {
+//                     e.stopPropagation();
+//                     setSelectedBooking(b);
+//                     setActiveModal("review");
+//                   }}
 //                 >
-//                   Review
+//                   <Star size={14} /> Review
 //                 </button>
 //               )}
 //             </div>
@@ -195,88 +210,147 @@
 //         ))}
 //       </div>
 
+//       {/* Past Bookings */}
+//       <h2 className="text-xl font-semibold mt-12 mb-4 text-primary">
+//         Past Bookings
+//       </h2>
+//       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+//         {bookings.map((b) => (
+//           <div
+//             key={b._id}
+//             className="bg-white rounded-xl shadow-md p-4 border border-gray-200 hover:shadow-lg transition cursor-pointer"
+//             onClick={() => navigate(`/book/${b.serviceId?._id}`)}
+//           >
+//             <h3 className="text-md font-bold text-primary">
+//               {b.serviceId?.title}
+//             </h3>
+//             <p className="flex items-center gap-2 text-gray-600 text-sm mt-1">
+//               <User size={16} /> {b.technicianId?.name}
+//             </p>
+//             <p className="flex items-center gap-2 text-gray-500 text-sm">
+//               <Calendar size={16} />{" "}
+//               {new Date(b.bookingDate).toLocaleDateString()}
+//             </p>
+//             <p className="mt-2 text-sm">
+//               Status:{" "}
+//               <span className="px-2 py-0.5 text-xs rounded-full border border-gray-300">
+//                 {b.status}
+//               </span>
+//             </p>
+
+//             {b.review && (
+//               <div className="mt-3">
+//                 <div className="flex items-center gap-1 text-yellow-500">
+//                   {Array.from({ length: b.rating }).map((_, i) => (
+//                     <Star key={i} size={14} fill="currentColor" />
+//                   ))}
+//                 </div>
+//                 <p className="italic text-xs text-gray-600 mt-1">
+//                   "{b.review}"
+//                 </p>
+//               </div>
+//             )}
+//           </div>
+//         ))}
+//       </div>
+
 //       {/* Cancel Modal */}
 //       {activeModal === "cancel" && (
-//         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-//           <div className="bg-white p-6 rounded shadow w-96">
-//             <h2 className="text-lg font-bold mb-4">Cancel Booking?</h2>
-//             <p>Are you sure you want to cancel this booking?</p>
-//             <div className="mt-4 flex justify-end gap-2">
-//               <button className="btn" onClick={() => setActiveModal(null)}>
-//                 No
-//               </button>
-//               <button className="btn btn-error" onClick={cancelBooking}>
-//                 Yes, Cancel
-//               </button>
-//             </div>
-//           </div>
-//         </div>
+//         <Modal
+//           title="Cancel Booking?"
+//           onClose={() => setActiveModal(null)}
+//           onConfirm={cancelBooking}
+//           confirmLabel="Yes, Cancel"
+//           confirmClass="bg-red-600 hover:bg-red-700 text-white"
+//         >
+//           Are you sure you want to cancel this booking?
+//         </Modal>
 //       )}
 
 //       {/* Reschedule Modal */}
 //       {activeModal === "reschedule" && (
-//         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-//           <div className="bg-white p-6 rounded shadow w-96">
-//             <h2 className="text-lg font-bold mb-4">Reschedule Booking</h2>
-//             <input
-//               type="date"
-//               className="input input-bordered w-full"
-//               value={newDate}
-//               onChange={(e) => setNewDate(e.target.value)}
-//             />
-//             <div className="mt-4 flex justify-end gap-2">
-//               <button className="btn" onClick={() => setActiveModal(null)}>
-//                 Cancel
-//               </button>
-//               <button className="btn btn-warning" onClick={rescheduleBooking}>
-//                 Reschedule
-//               </button>
-//             </div>
-//           </div>
-//         </div>
+//         <Modal
+//           title="Reschedule Booking"
+//           onClose={() => setActiveModal(null)}
+//           onConfirm={rescheduleBooking}
+//           confirmLabel="Reschedule"
+//           confirmClass="bg-yellow-500 hover:bg-yellow-600 text-white"
+//         >
+//           <input
+//             type="date"
+//             className="input input-bordered w-full border border-gray-300 rounded-md p-2"
+//             value={newDate}
+//             onChange={(e) => setNewDate(e.target.value)}
+//           />
+//         </Modal>
 //       )}
 
 //       {/* Review Modal */}
 //       {activeModal === "review" && (
-//         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-//           <div className="bg-white p-6 rounded shadow w-96">
-//             <h2 className="text-lg font-bold mb-4">Leave a Review</h2>
-//             <label className="block mb-2">Rating (1–5)</label>
-//             <input
-//               type="number"
-//               min="1"
-//               max="5"
-//               className="input input-bordered w-full mb-4"
-//               value={rating}
-//               onChange={(e) => setRating(Number(e.target.value))}
-//             />
-//             <textarea
-//               className="textarea textarea-bordered w-full mb-4"
-//               placeholder="Write your review..."
-//               value={reviewText}
-//               onChange={(e) => setReviewText(e.target.value)}
-//             />
-//             <div className="mt-2 flex justify-end gap-2">
-//               <button className="btn" onClick={() => setActiveModal(null)}>
-//                 Cancel
-//               </button>
-//               <button className="btn btn-success" onClick={reviewBooking}>
-//                 Submit
-//               </button>
-//             </div>
-//           </div>
-//         </div>
+//         <Modal
+//           title="Leave a Review"
+//           onClose={() => setActiveModal(null)}
+//           onConfirm={reviewBooking}
+//           confirmLabel="Submit"
+//           confirmClass="bg-green-600 hover:bg-green-700 text-white"
+//         >
+//           <label className="block mb-2 font-medium text-sm">Rating</label>
+//           <input
+//             type="number"
+//             min="1"
+//             max="5"
+//             className="input input-bordered w-full mb-4 border border-gray-300 rounded-md p-2"
+//             value={rating}
+//             onChange={(e) => setRating(Number(e.target.value))}
+//           />
+//           <textarea
+//             className="textarea textarea-bordered w-full border border-gray-300 rounded-md p-2"
+//             placeholder="Write your review..."
+//             value={reviewText}
+//             onChange={(e) => setReviewText(e.target.value)}
+//           />
+//         </Modal>
 //       )}
 //     </div>
 //   );
 // }
 
-// ------------------------------------------------
+// function Modal({
+//   title,
+//   children,
+//   onClose,
+//   onConfirm,
+//   confirmLabel,
+//   confirmClass,
+// }) {
+//   return (
+//     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+//       <div className="bg-white rounded-xl shadow-xl w-96 p-6 border border-gray-200">
+//         <h2 className="text-lg font-bold mb-4 text-primary">{title}</h2>
+//         {children}
+//         <div className="mt-6 flex justify-end gap-2">
+//           <button className="px-4 py-2 rounded-md border" onClick={onClose}>
+//             Cancel
+//           </button>
+//           <button
+//             className={`px-4 py-2 rounded-md ${confirmClass}`}
+//             onClick={onConfirm}
+//           >
+//             {confirmLabel}
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import useBookingStore from "../store/bookingStore";
+import { useNavigate } from "react-router-dom";
+import { Calendar, User, Phone, Star, XCircle, RefreshCcw } from "lucide-react";
 
 const BASE_URL = "http://localhost:5000/api";
 
@@ -291,13 +365,13 @@ export default function MyBookings() {
     selectedBooking,
   } = useBookingStore();
 
-  // Local-only modal & form states
   const [activeModal, setActiveModal] = useState(null);
   const [newDate, setNewDate] = useState("");
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(5);
 
   const authHeader = { Authorization: `Bearer ${token}` };
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBookings();
@@ -310,10 +384,10 @@ export default function MyBookings() {
       const res = await axios.get(`${BASE_URL}/bookings`, {
         headers: authHeader,
       });
-      setBookings(res.data);
-    } catch (err) {
+      const pastBookings = res.data.filter((b) => b.status === "completed");
+      setBookings(pastBookings);
+    } catch {
       toast.error("Failed to fetch bookings");
-      console.error(err);
     }
   };
 
@@ -341,9 +415,8 @@ export default function MyBookings() {
       setActiveModal(null);
       fetchBookings();
       fetchUpcoming();
-    } catch (err) {
+    } catch {
       toast.error("Cancel failed");
-      console.error(err);
     }
   };
 
@@ -360,9 +433,8 @@ export default function MyBookings() {
       setNewDate("");
       fetchBookings();
       fetchUpcoming();
-    } catch (err) {
+    } catch {
       toast.error("Reschedule failed");
-      console.error(err);
     }
   };
 
@@ -379,56 +451,106 @@ export default function MyBookings() {
       setReviewText("");
       setRating(5);
       fetchBookings();
-    } catch (err) {
+    } catch {
       toast.error("Review failed");
-      console.error(err);
     }
   };
 
+  // ✅ helper: check if review allowed (within 24h of completion)
+  const canLeaveReview = (bookingDate) => {
+    const now = new Date();
+    const completedAt = new Date(bookingDate);
+    const diffMinutes = (now - completedAt) / (1000 * 60); // difference in minutes
+    return diffMinutes <= 2; // ✅ allow review only within 2 minutes
+  };
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">My Bookings</h1>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 p-6">
+      {/* Header */}
+      <div className="bg-primary text-white rounded-xl shadow-md p-6 mb-8 text-center">
+        <h1 className="text-3xl font-extrabold flex items-center justify-center gap-2">
+          <Calendar size={26} /> My Bookings
+        </h1>
+      </div>
 
-      {/* Upcoming Bookings */}
-      <h2 className="text-xl mb-2">Upcoming</h2>
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Upcoming */}
+      <h2 className="text-xl font-semibold mb-4 text-primary">Upcoming</h2>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {upcoming.map((b) => (
-          <div key={b._id} className="card bg-base-200 p-4 shadow">
-            <h3 className="font-semibold">{b.serviceId?.title}</h3>
-            <p>
-              Technician: {b.technicianId?.name} ({b.technicianId?.phone})
-            </p>
-            <p>Date: {new Date(b.bookingDate).toLocaleDateString()}</p>
-            <p>Status: {b.status}</p>
+          <div
+            key={b._id}
+            className="bg-white rounded-xl shadow-md p-4 border border-gray-200 hover:shadow-lg transition cursor-pointer"
+            onClick={() => navigate(`/book/${b.serviceId?._id}`)}
+          >
+            <h3 className="font-bold text-lg text-primary flex items-center justify-between">
+              {b.serviceId?.title}
+              <span className="px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-600">
+                {b.serviceId?.category}
+              </span>
+            </h3>
 
-            <div className="mt-2 flex gap-2">
-              <button
-                className="btn btn-sm btn-error"
-                onClick={() => {
-                  setSelectedBooking(b);
-                  setActiveModal("cancel");
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-sm btn-warning"
-                onClick={() => {
-                  setSelectedBooking(b);
-                  setActiveModal("reschedule");
-                }}
-              >
-                Reschedule
-              </button>
-              {b.status === "completed" && (
+            <p className="flex items-center gap-2 mt-2 text-gray-700">
+              <User size={16} /> {b.technicianId?.name}
+            </p>
+            <p className="flex items-center gap-2 text-gray-600 text-sm">
+              <Phone size={14} className="text-green-500" />{" "}
+              {b.technicianId?.phone}
+            </p>
+            <p className="flex items-center gap-2 text-gray-500 text-sm mt-1">
+              <Calendar size={16} className="text-pink-500" />{" "}
+              {new Date(b.bookingDate).toLocaleDateString()}
+            </p>
+
+            <span
+              className={`inline-block mt-3 px-2 py-1 text-xs rounded-full ${
+                b.status === "pending"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : b.status === "completed"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {b.status}
+            </span>
+
+            {/* Actions */}
+            <div className="mt-4 flex gap-2">
+              {/* ✅ cancel/reschedule only if pending */}
+              {b.status === "pending" && (
+                <>
+                  <button
+                    className="flex items-center gap-1 bg-red-100 text-red-600 px-3 py-1 rounded-md text-sm hover:bg-red-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedBooking(b);
+                      setActiveModal("cancel");
+                    }}
+                  >
+                    <XCircle size={14} /> Cancel
+                  </button>
+                  <button
+                    className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-md text-sm hover:bg-yellow-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedBooking(b);
+                      setActiveModal("reschedule");
+                    }}
+                  >
+                    <RefreshCcw size={14} /> Reschedule
+                  </button>
+                </>
+              )}
+              {/* ✅ review only if completed & within 24h */}
+              {b.status === "completed" && canLeaveReview(b.bookingDate) && (
                 <button
-                  className="btn btn-sm btn-success"
-                  onClick={() => {
+                  className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-md text-sm hover:bg-green-200"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedBooking(b);
                     setActiveModal("review");
                   }}
                 >
-                  Review
+                  <Star size={14} /> Review
                 </button>
               )}
             </div>
@@ -436,121 +558,136 @@ export default function MyBookings() {
         ))}
       </div>
 
-      {/* All Bookings */}
-      <h2 className="text-xl mt-6 mb-2">All Bookings</h2>
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Past Bookings */}
+      <h2 className="text-xl font-semibold mt-12 mb-4 text-primary">
+        Past Bookings
+      </h2>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {bookings.map((b) => (
-          <div key={b._id} className="card shadow p-4">
-            <h3 className="text-lg font-bold">{b.service?.title}</h3>
-            <p>Status: {b.status}</p>
+          <div
+            key={b._id}
+            className="bg-white rounded-xl shadow-md p-4 border border-gray-200 hover:shadow-lg transition cursor-pointer"
+            onClick={() => navigate(`/book/${b.serviceId?._id}`)}
+          >
+            <h3 className="text-md font-bold text-primary">
+              {b.serviceId?.title}
+            </h3>
+            <p className="flex items-center gap-2 text-gray-600 text-sm mt-1">
+              <User size={16} /> {b.technicianId?.name}
+            </p>
+            <p className="flex items-center gap-2 text-gray-500 text-sm">
+              <Calendar size={16} />{" "}
+              {new Date(b.bookingDate).toLocaleDateString()}
+            </p>
+            <p className="mt-2 text-sm">
+              Status:{" "}
+              <span className="px-2 py-0.5 text-xs rounded-full border border-gray-300">
+                {b.status}
+              </span>
+            </p>
 
-            <div className="flex gap-2 mt-2">
-              <button
-                className="btn btn-error btn-sm"
-                onClick={() => {
-                  setSelectedBooking(b);
-                  setActiveModal("cancel");
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-warning btn-sm"
-                onClick={() => {
-                  setSelectedBooking(b);
-                  setActiveModal("reschedule");
-                }}
-              >
-                Reschedule
-              </button>
-              {b.status === "completed" && (
-                <button
-                  className="btn btn-success btn-sm"
-                  onClick={() => {
-                    setSelectedBooking(b);
-                    setActiveModal("review");
-                  }}
-                >
-                  Review
-                </button>
-              )}
-            </div>
+            {b.review && (
+              <div className="mt-3">
+                <div className="flex items-center gap-1 text-yellow-500">
+                  {Array.from({ length: b.rating }).map((_, i) => (
+                    <Star key={i} size={14} fill="currentColor" />
+                  ))}
+                </div>
+                <p className="italic text-xs text-gray-600 mt-1">
+                  "{b.review}"
+                </p>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {/* Cancel Modal */}
       {activeModal === "cancel" && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow w-96">
-            <h2 className="text-lg font-bold mb-4">Cancel Booking?</h2>
-            <p>Are you sure you want to cancel this booking?</p>
-            <div className="mt-4 flex justify-end gap-2">
-              <button className="btn" onClick={() => setActiveModal(null)}>
-                No
-              </button>
-              <button className="btn btn-error" onClick={cancelBooking}>
-                Yes, Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Cancel Booking?"
+          onClose={() => setActiveModal(null)}
+          onConfirm={cancelBooking}
+          confirmLabel="Yes, Cancel"
+          confirmClass="bg-red-600 hover:bg-red-700 text-white"
+        >
+          Are you sure you want to cancel this booking?
+        </Modal>
       )}
 
       {/* Reschedule Modal */}
       {activeModal === "reschedule" && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow w-96">
-            <h2 className="text-lg font-bold mb-4">Reschedule Booking</h2>
-            <input
-              type="date"
-              className="input input-bordered w-full"
-              value={newDate}
-              onChange={(e) => setNewDate(e.target.value)}
-            />
-            <div className="mt-4 flex justify-end gap-2">
-              <button className="btn" onClick={() => setActiveModal(null)}>
-                Cancel
-              </button>
-              <button className="btn btn-warning" onClick={rescheduleBooking}>
-                Reschedule
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Reschedule Booking"
+          onClose={() => setActiveModal(null)}
+          onConfirm={rescheduleBooking}
+          confirmLabel="Reschedule"
+          confirmClass="bg-yellow-500 hover:bg-yellow-600 text-white"
+        >
+          <input
+            type="date"
+            className="input input-bordered w-full border border-gray-300 rounded-md p-2"
+            value={newDate}
+            onChange={(e) => setNewDate(e.target.value)}
+          />
+        </Modal>
       )}
 
       {/* Review Modal */}
       {activeModal === "review" && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow w-96">
-            <h2 className="text-lg font-bold mb-4">Leave a Review</h2>
-            <label className="block mb-2">Rating (1–5)</label>
-            <input
-              type="number"
-              min="1"
-              max="5"
-              className="input input-bordered w-full mb-4"
-              value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-            />
-            <textarea
-              className="textarea textarea-bordered w-full mb-4"
-              placeholder="Write your review..."
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
-            />
-            <div className="mt-2 flex justify-end gap-2">
-              <button className="btn" onClick={() => setActiveModal(null)}>
-                Cancel
-              </button>
-              <button className="btn btn-success" onClick={reviewBooking}>
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Leave a Review"
+          onClose={() => setActiveModal(null)}
+          onConfirm={reviewBooking}
+          confirmLabel="Submit"
+          confirmClass="bg-green-600 hover:bg-green-700 text-white"
+        >
+          <label className="block mb-2 font-medium text-sm">Rating</label>
+          <input
+            type="number"
+            min="1"
+            max="5"
+            className="input input-bordered w-full mb-4 border border-gray-300 rounded-md p-2"
+            value={rating}
+            onChange={(e) => setRating(Number(e.target.value))}
+          />
+          <textarea
+            className="textarea textarea-bordered w-full border border-gray-300 rounded-md p-2"
+            placeholder="Write your review..."
+            value={reviewText}
+            onChange={(e) => setReviewText(e.target.value)}
+          />
+        </Modal>
       )}
+    </div>
+  );
+}
+
+function Modal({
+  title,
+  children,
+  onClose,
+  onConfirm,
+  confirmLabel,
+  confirmClass,
+}) {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+      <div className="bg-white rounded-xl shadow-xl w-96 p-6 border border-gray-200">
+        <h2 className="text-lg font-bold mb-4 text-primary">{title}</h2>
+        {children}
+        <div className="mt-6 flex justify-end gap-2">
+          <button className="px-4 py-2 rounded-md border" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md ${confirmClass}`}
+            onClick={onConfirm}
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
