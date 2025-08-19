@@ -4,15 +4,7 @@
 // import useAuthStore from "../store/authStore";
 // import useBookingStore from "../store/bookingStore";
 // import { useNavigate } from "react-router-dom";
-// import {
-//   Calendar,
-//   User,
-//   Phone,
-//   Star,
-//   XCircle,
-//   RefreshCcw,
-//   MessageSquare,
-// } from "lucide-react";
+// import { Calendar, User, Phone, Star, XCircle, RefreshCcw } from "lucide-react";
 
 // const BASE_URL = "http://localhost:5000/api";
 
@@ -118,6 +110,15 @@
 //     }
 //   };
 
+//   // ✅ helper: check if review allowed (within 24h of completion)
+//   const canLeaveReview = (completedAt) => {
+//     if (!completedAt) return false;
+//     const now = new Date();
+//     const completedTime = new Date(completedAt);
+//     const diffHours = (now - completedTime) / (1000 * 60 * 60);
+//     return diffHours <= 24; // ✅ allow within 24h
+//   };
+
 //   return (
 //     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 p-6">
 //       {/* Header */}
@@ -169,6 +170,7 @@
 
 //             {/* Actions */}
 //             <div className="mt-4 flex gap-2">
+//               {/* ✅ cancel/reschedule only if pending */}
 //               {b.status === "pending" && (
 //                 <>
 //                   <button
@@ -193,7 +195,8 @@
 //                   </button>
 //                 </>
 //               )}
-//               {b.status === "completed" && (
+//               {/* ✅ review only if completed & within 24h */}
+//               {b.status === "completed" && canLeaveReview(b.bookingDate) && (
 //                 <button
 //                   className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-md text-sm hover:bg-green-200"
 //                   onClick={(e) => {
@@ -350,7 +353,15 @@ import { toast } from "react-hot-toast";
 import useAuthStore from "../store/authStore";
 import useBookingStore from "../store/bookingStore";
 import { useNavigate } from "react-router-dom";
-import { Calendar, User, Phone, Star, XCircle, RefreshCcw } from "lucide-react";
+import {
+  Calendar,
+  User,
+  Phone,
+  Star,
+  XCircle,
+  RefreshCcw,
+  CheckCircle,
+} from "lucide-react";
 
 const BASE_URL = "http://localhost:5000/api";
 
@@ -456,12 +467,33 @@ export default function MyBookings() {
     }
   };
 
+  // ✅ customer confirms service completion
+  const confirmCompletion = async (bookingId) => {
+    try {
+      await fetch(`${BASE_URL}/bookings/customer/status/${bookingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "completed" }),
+      });
+
+      toast.success("Service marked as completed");
+      fetchBookings();
+      fetchUpcoming();
+    } catch {
+      toast.error("Failed to confirm completion");
+    }
+  };
+
   // ✅ helper: check if review allowed (within 24h of completion)
-  const canLeaveReview = (bookingDate) => {
+  const canLeaveReview = (completedAt) => {
+    if (!completedAt) return false;
     const now = new Date();
-    const completedAt = new Date(bookingDate);
-    const diffMinutes = (now - completedAt) / (1000 * 60); // difference in minutes
-    return diffMinutes <= 2; // ✅ allow review only within 2 minutes
+    const completedTime = new Date(completedAt);
+    const diffHours = (now - completedTime) / (1000 * 60 * 60);
+    return diffHours <= 24;
   };
 
   return (
@@ -501,21 +533,35 @@ export default function MyBookings() {
               {new Date(b.bookingDate).toLocaleDateString()}
             </p>
 
-            <span
-              className={`inline-block mt-3 px-2 py-1 text-xs rounded-full ${
-                b.status === "pending"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : b.status === "completed"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {b.status}
-            </span>
+            {/* Status */}
+            {b.status === "completion_requested" ? (
+              <div className="mt-3">
+                <button
+                  className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-md text-sm hover:bg-green-200"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    confirmCompletion(b._id);
+                  }}
+                >
+                  <CheckCircle size={14} /> Confirm Completion
+                </button>
+              </div>
+            ) : (
+              <span
+                className={`inline-block mt-3 px-2 py-1 text-xs rounded-full ${
+                  b.status === "pending"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : b.status === "completed"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                {b.status}
+              </span>
+            )}
 
             {/* Actions */}
             <div className="mt-4 flex gap-2">
-              {/* ✅ cancel/reschedule only if pending */}
               {b.status === "pending" && (
                 <>
                   <button
@@ -540,8 +586,7 @@ export default function MyBookings() {
                   </button>
                 </>
               )}
-              {/* ✅ review only if completed & within 24h */}
-              {b.status === "completed" && canLeaveReview(b.bookingDate) && (
+              {b.status === "completed" && canLeaveReview(b.completedAt) && (
                 <button
                   className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-md text-sm hover:bg-green-200"
                   onClick={(e) => {

@@ -16,12 +16,13 @@
 //     ref: "Technician",
 //     required: true,
 //   },
-//   bookingDate: { type: Date, required: true },
+//   bookingDate: { type: Date, required: true }, // when service is scheduled
 //   status: {
 //     type: String,
 //     enum: ["pending", "confirmed", "completed", "cancelled"],
 //     default: "pending",
 //   },
+//   completedAt: { type: Date }, //to track when booking was marked completed
 //   rating: { type: Number, min: 1, max: 5 },
 //   review: { type: String },
 //   createdAt: { type: Date, default: Date.now },
@@ -50,10 +51,17 @@ const bookingSchema = new mongoose.Schema({
   bookingDate: { type: Date, required: true }, // when service is scheduled
   status: {
     type: String,
-    enum: ["pending", "confirmed", "completed", "cancelled"],
+    enum: [
+      "pending",
+      "confirmed",
+      "completion_requested",
+      "completed",
+      "cancelled",
+    ],
     default: "pending",
   },
-  completedAt: { type: Date }, //to track when booking was marked completed
+  completionRequestedAt: { type: Date }, // when technician clicked "mark as complete"
+  completedAt: { type: Date }, // when customer confirmed
   rating: { type: Number, min: 1, max: 5 },
   review: { type: String },
   createdAt: { type: Date, default: Date.now },

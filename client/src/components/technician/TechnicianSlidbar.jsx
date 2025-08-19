@@ -14,7 +14,7 @@ const Sidebar = ({ activeSection, setActiveSection, handleLogout }) => {
       {/* Company Name */}
       <h1 className="text-xl font-bold mb-8">ABC COMPANY</h1>
 
-      {/* Menu Section (scrollable if grows big) */}
+      {/* Menu Section */}
       <div className="flex-1 overflow-y-auto">
         <ul className="space-y-6">
           <li
@@ -74,7 +74,7 @@ const Sidebar = ({ activeSection, setActiveSection, handleLogout }) => {
         </ul>
       </div>
 
-      {/* Logout Button always at bottom */}
+      {/* Logout */}
       <div className="mt-4">
         <button
           onClick={handleLogout}

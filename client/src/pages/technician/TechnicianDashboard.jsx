@@ -191,7 +191,8 @@ import useAuthStore from "../../store/authStore";
 import TechnicianWelcome from "../../components/technician/TechnicianWelcome";
 import TechnicianServiceCard from "../../components/services/TechnicianServiceCard";
 import TechnicianServiceForm from "../../components/services/TechnicianServiceForm";
-import TechnicianSlidbar from "../../components/technician/TechnicianSlidbar";
+import Sidebar from "../../components/technician/TechnicianSlidbar";
+import TechnicianBookings from "../../components/technician/TechnicianBookings";
 
 export default function TechnicianDashboard() {
   const { token, logout } = useAuthStore();
@@ -211,7 +212,7 @@ export default function TechnicianDashboard() {
     navigate("/", { replace: true });
   };
 
-  // ✅ Fetch bookings
+  // ✅ Fetch bookings with details
   const fetchBookings = async () => {
     try {
       const res = await api.get("/api/technician/bookings", {
@@ -313,11 +314,12 @@ export default function TechnicianDashboard() {
   // ✅ calculate totals
   const totalEarnings = bookings.reduce((sum, b) => sum + (b.price || 0), 0);
   const completedJobs = bookings.filter((b) => b.status === "Completed");
+  const activeBookings = bookings.filter((b) => b.status !== "Completed");
 
   return (
     <div className="min-h-screen bg-base-200 flex">
-      {/* Left Sidebar */}
-      <TechnicianSlidbar
+      {/* Sidebar */}
+      <Sidebar
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         handleLogout={handleLogout}
@@ -331,15 +333,15 @@ export default function TechnicianDashboard() {
         {activeSection === "services" && (
           <>
             <h2 className="text-2xl font-bold mb-4">Your Services</h2>
-            <input
-              type="text"
-              placeholder="Search services..."
-              className="input input-bordered w-full max-w-md mb-4"
-            />
             <div className="flex justify-between items-center mb-4">
+              <input
+                type="text"
+                placeholder="Search services..."
+                className="input input-bordered w-full max-w-md"
+              />
               <button
                 onClick={() => openForm()}
-                className="btn btn-primary btn-sm"
+                className="btn btn-primary btn-sm ml-4"
               >
                 + Add Service
               </button>
@@ -361,28 +363,12 @@ export default function TechnicianDashboard() {
           </>
         )}
 
-        {/* Bookings Section */}
+        {/* Bookings Section (Pending + Confirmed) */}
         {activeSection === "bookings" && (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Your Bookings</h2>
-            {bookings.length > 0 ? (
-              bookings.map((b) => (
-                <div key={b._id} className="card bg-white shadow p-4 my-2">
-                  <p>
-                    <strong>Service:</strong> {b.serviceName}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {b.status}
-                  </p>
-                  <p>
-                    <strong>Price:</strong> ₹{b.price || 0}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <p>No bookings yet.</p>
-            )}
-          </>
+          <TechnicianBookings
+            bookings={activeBookings}
+            fetchBookings={fetchBookings}
+          />
         )}
 
         {/* Earnings Section */}
@@ -397,19 +383,10 @@ export default function TechnicianDashboard() {
 
         {/* Completed Jobs Section */}
         {activeSection === "completed" && (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Completed Jobs</h2>
-            {completedJobs.length > 0 ? (
-              completedJobs.map((b) => (
-                <div key={b._id} className="card bg-white shadow p-4 my-2">
-                  <p>{b.serviceName}</p>
-                  <p>₹ {b.price || 0}</p>
-                </div>
-              ))
-            ) : (
-              <p>No completed jobs yet.</p>
-            )}
-          </>
+          <TechnicianBookings
+            bookings={completedJobs}
+            fetchBookings={fetchBookings}
+          />
         )}
       </main>
 

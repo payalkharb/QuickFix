@@ -7,6 +7,7 @@ import serviceRoutes from "./routes/service.route.js";
 import bookingRoutes from "./routes/booking.route.js";
 import technicianRoutes from "./routes/technician.route.js";
 import customerRoutes from "./routes/customer.route.js";
+import contactRoutes from "./routes/contact.route.js";
 
 dotenv.config();
 
@@ -23,6 +24,8 @@ app.use("/api/services", serviceRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/technician", technicianRoutes);
 app.use("/api/customer", customerRoutes);
+
+app.use("/api/contact", contactRoutes);
 
 // Test route
 app.get("/", (req, res) => {
