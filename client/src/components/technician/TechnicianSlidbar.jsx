@@ -50,7 +50,7 @@ const Sidebar = ({ activeSection, setActiveSection, handleLogout }) => {
             <FaMoneyBillWave /> Total Earnings
           </li>
 
-          <li
+          {/* <li
             className={`flex items-center gap-3 cursor-pointer p-2 rounded-md ${
               activeSection === "completed"
                 ? "bg-white text-primary font-bold"
@@ -59,7 +59,7 @@ const Sidebar = ({ activeSection, setActiveSection, handleLogout }) => {
             onClick={() => setActiveSection("completed")}
           >
             <FaCheckSquare /> Completed Jobs
-          </li>
+          </li> */}
 
           <li
             className={`flex items-center gap-3 cursor-pointer p-2 rounded-md ${
