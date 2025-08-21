@@ -61,7 +61,7 @@ const Sidebar = ({ activeSection, setActiveSection, handleLogout }) => {
             <FaCheckSquare /> Completed Jobs
           </li> */}
 
-          <li
+          {/* <li
             className={`flex items-center gap-3 cursor-pointer p-2 rounded-md ${
               activeSection === "profile"
                 ? "bg-white text-primary font-bold"
@@ -70,7 +70,7 @@ const Sidebar = ({ activeSection, setActiveSection, handleLogout }) => {
             onClick={() => setActiveSection("profile")}
           >
             <FaUser /> Update Profile
-          </li>
+          </li> */}
         </ul>
       </div>
 

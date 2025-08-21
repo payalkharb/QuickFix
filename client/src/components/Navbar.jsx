@@ -8,8 +8,8 @@ import useServiceFilterStore from "../store/serviceFilterStore.js";
 
 const dummyServices = [
   {
-    name: "Cleaning",
-    subservices: ["Home Cleaning", "Office Cleaning", "Deep Cleaning"],
+    name: "Salon",
+    subservices: ["Haircut", "Pedicure", "Manicure"],
   },
   {
     name: "Electrical",
