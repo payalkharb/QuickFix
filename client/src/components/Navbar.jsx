@@ -105,14 +105,14 @@ const Navbar = () => {
                 <ul className="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40 z-[100]">
                   {role === "customer" && (
                     <>
-                      <li>
+                      {/* <li>
                         <Link
                           to="/customer-dashboard"
                           className="font-semibold text-primary"
                         >
                           Dashboard
                         </Link>
-                      </li>
+                      </li> */}
                       <li>
                         <Link
                           to="/customer/bookings"
