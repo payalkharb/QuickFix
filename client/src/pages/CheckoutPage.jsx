@@ -24,12 +24,59 @@ export default function CheckoutPage() {
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   const fetchService = async () => {
+  //     try {
+  //       const res = await fetch(`/api/services/${serviceId}`);
+  //       const data = await res.json();
+  //       setService(data);
+  //     } catch (err) {
+  //       console.error(err);
+  //       toast.error("Failed to load service details");
+  //     }
+  //   };
+  //   fetchService();
+  // }, [serviceId]);
+
+  // useEffect(() => {
+  //   if (user?.location) {
+  //     setLocation(user.location); // prefill customer’s saved location
+  //   }
+  // }, [user]);
+
+  // const handlePlaceBooking = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) {
+  //       toast.error("You must be logged in to book a service");
+  //       return;
+  //     }
+
+  //     const bookingDate = new Date(`${date}T${time}`);
+
+  //     await axios.post(
+  //       `${import.meta.env.VITE_API_BASE_URL}/api/bookings`,
+  //       `${API_URL}/api/bookings`,
+  //       { serviceId, bookingDate, location }, // ✅ send location also
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+
+  //     toast.success("Booking placed successfully!");
+  //     setShowPopup(false);
+  //     navigate("/customer/bookings");
+  //   } catch (error) {
+  //     console.error("Error:", error.response?.data || error.message);
+  //     toast.error("Could not place booking");
+  //   }
+  // };
+
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const res = await fetch(`/api/services/${serviceId}`);
-        const data = await res.json();
-        setService(data);
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/services/${serviceId}`
+        );
+        setService(res.data);
       } catch (err) {
         console.error(err);
         toast.error("Failed to load service details");
@@ -37,12 +84,6 @@ export default function CheckoutPage() {
     };
     fetchService();
   }, [serviceId]);
-
-  useEffect(() => {
-    if (user?.location) {
-      setLocation(user.location); // prefill customer’s saved location
-    }
-  }, [user]);
 
   const handlePlaceBooking = async () => {
     try {
@@ -56,8 +97,7 @@ export default function CheckoutPage() {
 
       await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/bookings`,
-        `${API_URL}/api/bookings`,
-        { serviceId, bookingDate, location }, // ✅ send location also
+        { serviceId, bookingDate, location }, // ✅ correct request body
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

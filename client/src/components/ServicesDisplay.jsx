@@ -32,7 +32,8 @@ const ServicesDisplay = () => {
           page,
           limit: 9,
         });
-        const res = await fetch(`/api/services?${params}`);
+        const res = await fetch(`${API_BASE}/api/services?${params}`);
+        // const res = await fetch(`/api/services?${params}`);
         const data = await res.json();
         setServices(data.services);
         setTotal(data.total);
