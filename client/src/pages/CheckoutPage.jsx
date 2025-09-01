@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import useAuthStore from "../store/authStore";
+import API_URL from "../utils/api";
 import axios from "axios";
 import {
   Calendar,
@@ -55,6 +56,7 @@ export default function CheckoutPage() {
 
       await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/bookings`,
+        `${API_URL}/api/bookings`,
         { serviceId, bookingDate, location }, // ✅ send location also
         { headers: { Authorization: `Bearer ${token}` } }
       );
