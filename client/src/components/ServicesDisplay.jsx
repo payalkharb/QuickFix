@@ -6,6 +6,8 @@ import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+
 const ServicesDisplay = () => {
   const { selectedSubService, filters, setFilters } = useServiceFilterStore();
   const { availability, priceRange, sortBy } = filters;
