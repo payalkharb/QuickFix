@@ -14,7 +14,7 @@ export default function CustomerLogin() {
   const handleSendOTP = async () => {
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/send-otp`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/send-otp`,
         {
           email,
           role: "customer",
@@ -36,7 +36,7 @@ export default function CustomerLogin() {
   const handleVerifyOTP = async () => {
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/verify-otp`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-otp`,
         {
           email,
           role: "customer",

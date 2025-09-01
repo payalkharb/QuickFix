@@ -30,7 +30,7 @@ export default function CustomerSignup() {
     try {
       const { email, phone } = formData;
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/send-otp`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/send-otp`,
         {
           email,
           phone,
@@ -53,7 +53,7 @@ export default function CustomerSignup() {
   const handleVerifyOTP = async () => {
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/verify-otp`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-otp`,
         {
           ...formData,
           role: "customer",

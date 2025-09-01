@@ -361,7 +361,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function MyBookings() {
   const { token } = useAuthStore();

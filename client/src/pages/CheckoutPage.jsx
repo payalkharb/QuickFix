@@ -54,7 +54,7 @@ export default function CheckoutPage() {
       const bookingDate = new Date(`${date}T${time}`);
 
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/bookings`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/bookings`,
         { serviceId, bookingDate, location }, // ✅ send location also
         { headers: { Authorization: `Bearer ${token}` } }
       );
