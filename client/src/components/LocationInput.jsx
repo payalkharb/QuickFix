@@ -93,7 +93,7 @@ export default function LocationInput({ onChange }) {
     try {
       const role = localStorage.getItem("role"); // "customer" or "technician"
       const token = localStorage.getItem("token");
-      const apiBase = import.meta.env.VITE_API_BASE_URL || ""; // e.g. http://localhost:5000
+      const apiBase = import.meta.env.VITE_API_BASE_URL || "";
 
       const endpoint =
         role === "technician"
