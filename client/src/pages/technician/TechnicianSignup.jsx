@@ -5,8 +5,6 @@
 // import useAuthStore from "../../store/authStore";
 // import { toast } from "react-hot-toast";
 
-// const BASE_URL = "http://localhost:5000";
-
 // export default function TechnicianSignup() {
 //   const navigate = useNavigate();
 //   const { login } = useAuthStore();
@@ -195,7 +193,7 @@ import LocationInput from "../../components/LocationInput";
 import useAuthStore from "../../store/authStore";
 import { toast } from "react-hot-toast";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function TechnicianSignup() {
   const navigate = useNavigate();
