@@ -66,8 +66,6 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "../client/build")));
 
 // Catch-all for React Router
-app.get("*", (req, res) => {
-  if (!req.path.startsWith("/api")) {
-    res.sendFile(path.join(__dirname, "../client/build/index.html"));
-  }
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });
