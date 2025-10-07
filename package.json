@@ -1,0 +1,19 @@
+{
+  "name": "quickfix-fullstack",
+  "version": "1.0.0",
+  "main": "server/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/server.js",
+    "server-install": "cd server && npm install",
+    "client-install": "cd client && npm install",
+    "client-build": "cd client && npm run build",
+    "postinstall": "npm run server-install && npm run client-install && npm run client-build"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "mongoose": "^7.3.0"
+  }
+}
